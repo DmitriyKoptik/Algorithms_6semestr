@@ -1,0 +1,73 @@
+; 1ое Практическое
+0 1 _ r 1
+0 + _ * gg
+0 _ _ * gg
+1 * * r 1
+1 _ 1 l 2
+2 1 * l 2
+2 _ * r 0
+2 + * l 0+
+2 * _ * accept
+0+ 1 * l 2
+0+ _ * r dead+
+dead+ + _ r 0check
+0check 1 * r 0check
+0check + * r 2
+0check _ * * gg 
+
+gg * ! * halt-end
+
+; 1ое Индивидуальное
+
+Условие - cabdabda
+
+0 c * r 0
+0 a * r 0
+0 b f r 0
+0 d * r 0
+0 _ _ * gg
+
+gg * ! * halt-end
+
+; 2ое Практическое
+
+Условие - 01^x*01^y0
+
+0 * * r 1
+1 * * r 1
+1 _ * * 2
+2 _ * l 3
+3 * * * 2
+3 _ * * gg
+2 * * l 2
+2 y x l 2
+2 x y l 2
+gg * ! * halt-end
+
+; 2ое Индивидуальное
+0 a * r 0
+0 b * r 1
+0 _ * * reverse1
+1 b * * 0
+1 a b l swap1
+1 _ * * reverse
+swap1 b a r 0
+
+reverse _ * l 2
+
+2 b * l 2
+2 a * l 3
+2 _ * * reverse2
+3 a * * 2
+3 b a r swap2
+3 _ * * reverse2
+swap2 a b l 2
+
+reverse2 _ * r 0
+
+0 * * * gg
+1 * * * gg
+2 * * * gg
+3 * * * gg
+
+gg * ! * halt-end
