@@ -1,15 +1,15 @@
 package com.company;
 
 public enum Status {
-    NONE,
+    FREE,
     BORN,
     LIVE,
     DIED;
 
     public Status step1(int around) {
         switch (this) {
-            case NONE:
-                return (around == 3) ? BORN : NONE;
+            case FREE:
+                return (around == 3) ? BORN : FREE;
             case LIVE:
                 return (around <= 1 || around >= 4) ? DIED : LIVE;
             default:
@@ -22,7 +22,7 @@ public enum Status {
             case BORN:
                 return LIVE;
             case DIED:
-                return NONE;
+                return FREE;
             default:
                 return this;
         }

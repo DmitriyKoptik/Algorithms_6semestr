@@ -11,7 +11,7 @@ public class Config {
     public static Color getColor(Status status) {
         switch (status) {
             default:
-            case NONE:
+            case FREE:
                 return Color.WHITE;
             case BORN:
                 return Color.RED;

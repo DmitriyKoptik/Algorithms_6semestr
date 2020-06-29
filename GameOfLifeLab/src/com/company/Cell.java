@@ -7,7 +7,7 @@ public class Cell {
     Status status;
 
     public Cell() {
-        status = Status.NONE;
+        status = Status.FREE;
         near = new ArrayList<Cell>();
     }
 

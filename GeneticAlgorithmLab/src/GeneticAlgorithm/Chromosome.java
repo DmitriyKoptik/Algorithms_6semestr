@@ -37,44 +37,28 @@ public class Chromosome {
 		int z = genes[4];
 		
 		int closeness = Math.abs(   Main.function( u, w, x, y, z ) - target_value   ) ;
-	    	Main.log("Closeness: "+closeness);
 		
 		return  closeness!= 0  ? 1/(float)closeness : Main.TARGET_IS_REACHED_FLAG ;
 	}
 
 
-
-
-public Chromosome mutateWithGivenLikelihood(){
-       Main.log( "Starting mutateWithGivenLikelihood().... Diofant.MUTATION_LIKELIHOOD=="+ Main.MUTATION_LIKELIHOOD );
+	public Chromosome mutation(){
     
     Chromosome result =  (Chromosome ) this.clone();
-
-    for (int i = 0; i< Main.GENES_COUNT; ++i){
-	    float randomPercent = Main.getRandomFloat(0,100);
-	    if ( randomPercent < Main.MUTATION_LIKELIHOOD ){
-	         int oldValue =  result.getGenes()[i];
-	         int newValue= 	Main.getRandomGene();
- 	         Main.log( "Performing mutation for gene #"+i
-			+". ( randomPercent =="+randomPercent 
-			+" ). Old value:"+oldValue +"; New value:"+newValue ); 	
-                         result.getGenes()[i] = newValue;
-
-	       
-	   }
-    }	
-           Main.log( "Finished mutateWithGivenLikelihood()...." );
-           return result;		
+		if (result.getFitness() == Main.LeastFittest){
+			for (int i = 0; i< Main.GENES_COUNT; ++i){
+	    	float randomPercentGood = Main.getRandomFloat(0,100);
+				if ( randomPercentGood < Main.P ) {
+					int oldValue = result.getGenes()[i];
+					int newValue = Main.getRandomGene();
+					result.getGenes()[i] = newValue;
+				}
+			}
+		}
+    return result;
 }
 
-
 	public Chromosome[] doubleCrossover(  Chromosome chromosome  ){
-		
-        Main.log( "Starting DOUBLE crossover operation..." );
-        Main.log( "THIS chromo:"+this );
-        Main.log( "ARG chromo:"+chromosome );
-        
-        
 		
 		int crossoverline=getRandomCrossoverLine();
 		Chromosome[] result = new Chromosome[2];
@@ -95,37 +79,18 @@ public Chromosome mutateWithGivenLikelihood(){
 
 		}
 
-		Main.log( "RESULTING chromo #0:\n"+result[0] );
-		Main.log( "RESULTING chromo #1:\n"+result[1] );
-		Main.log( "DOUBLE crossover operation is finished..." );
-
-                                 return result;
+		return result;
 
 	}
 
 
 
-public Chromosome singleCrossover(  Chromosome chromosome  ){
-   Main.log( "Starting SINGLE crossover operation...Calling DOUBLE crossover first...." );
-   Chromosome[] children = doubleCrossover(  chromosome  ) ;
-    Main.log( "Selecting ONE of the 2 children returned by DOUBLE crossover ...." );
+	public Chromosome singleCrossover(  Chromosome chromosome  ){
+     Chromosome[] children = doubleCrossover(  chromosome  ) ;
      int childNumber = Main.getRandomInt(0, 1);
-    Main.log( "Selected child #"+childNumber +", here it is:\n"+children[childNumber] );
-   Main.log( "SINGLE crossover operation is finished" );
     return children[childNumber];
 }
 
-
-	public boolean equals( Chromosome chromosome ){
-		
-		for (int i = 0; i< Main.GENES_COUNT; ++i ){
-		  if ( this.genes[i]!=chromosome.genes[i]  ){
-			  return false;
-		  }
-		}
-		return true;
-		
-	}
 
 
 	public String toString(){
@@ -143,7 +108,6 @@ public Chromosome singleCrossover(  Chromosome chromosome  ){
 		result.append(  ")\n"  ) ;
 		
 		result.append( "Fitness:" + fitness+"\n" );
-		result.append( "Likelihood:" + likelihood+"\n" );
 		
 		
 		return result.toString();
@@ -153,8 +117,7 @@ public Chromosome singleCrossover(  Chromosome chromosome  ){
 
 
 	private static int getRandomCrossoverLine(){
-		int line = Main.getRandomInt(0, Main.GENES_COUNT - 2);  //-2 because we dn't need the position after the last gene
-		Main.log("Generated random CrossoverLine at position "+line);
+		int line = Main.getRandomInt(0, Main.GENES_COUNT - 2);
 		return line;
 	}
 	
@@ -165,7 +128,7 @@ public Chromosome singleCrossover(  Chromosome chromosome  ){
 		resultChromosome.setLikelihood(  this.getLikelihood() );
 		
 		int resultGenes[]=new int[Main.GENES_COUNT];
-		resultGenes=this.genes.clone();   //???? is this a correct way ?????
+		resultGenes=this.genes.clone();
 		
 		resultChromosome.setGenes(resultGenes);
 	

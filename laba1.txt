@@ -1,73 +1,127 @@
 ; 1ое Практическое
-0 1 _ r 1
-0 + _ * gg
-0 _ _ * gg
-1 * * r 1
-1 _ 1 l 2
-2 1 * l 2
-2 _ * r 0
-2 + * l 0+
-2 * _ * accept
-0+ 1 * l 2
-0+ _ * r dead+
-dead+ + _ r 0check
-0check 1 * r 0check
-0check + * r 2
-0check _ * * gg 
+0 a _ r 0
+0 b * r 0
+0 c * r 0
+0 d * r 0
+0 _ * r blank
+0 * * r gg
 
-gg * ! * halt-end
+blank _ * * gg
+blank * * * 0
+
+gg * ! * halt 
+
+; прокачанный вариант
+0 a * l delete
+0 b * r 0
+0 c * r 0
+0 d * r 0
+0 _ * r blank
+0 * * * error
+
+delete _ * r deletefirsta
+delete b _ r swapb
+delete c _ r swapc
+delete d _ r swapd
+
+deletefirsta a _ r 0
+swapb * b l checkprevstuff
+swapc * c l checkprevstuff
+swapd * d l checkprevstuff
+
+checkprevstuff _ * l endcheck
+checkprevstuff b * r swapb
+checkprevstuff c * r swapc
+checkprevstuff d * r swapd
+
+endcheck * * r 0
+endcheck b _ r swapb
+endcheck c _ r swapc
+endcheck d _ r swapd
+
+blank _ * l gg
+blank * * * 0
+
+error * * * halt
+gg * ! * halt 
 
 ; 1ое Индивидуальное
 
-Условие - cabdabda
+Условие - 110 01 * 101
 
-0 c * r 0
-0 a * r 0
-0 b f r 0
-0 d * r 0
-0 _ _ * gg
+0 0 1 r 0
+0 1 _ r 0
+0 _ _ r 1
 
-gg * ! * halt-end
+1 0 0 r 2
+1 1 1 r 2
+1 _ _ r 2
+
+2 0 1 r 3
+2 1 _ r 3
+2 _ _ r 3
+
+3 0 0 l 1
+3 1 1 l 3
+3 _ _ r halt
 
 ; 2ое Практическое
 
-Условие - 01^x*01^y0
+0 1 0 r 0
+0 0 * r 0
+0 * ! * halt
 
-0 * * r 1
-1 * * r 1
-1 _ * * 2
-2 _ * l 3
-3 * * * 2
-3 _ * * gg
-2 * * l 2
-2 y x l 2
-2 x y l 2
-gg * ! * halt-end
+пример - 1110001010110
 
 ; 2ое Индивидуальное
-0 a * r 0
-0 b * r 1
-0 _ * * reverse1
-1 b * * 0
-1 a b l swap1
-1 _ * * reverse
-swap1 b a r 0
+0 1 * r 0
+0 & * * startcomparison
+0 _ * l 0fromright
+0 * * * halt
 
-reverse _ * l 2
+0fromright _ * * halt
+0fromright 1 * l 0
+0fromright & * * startcomparison  
 
-2 b * l 2
-2 a * l 3
-2 _ * * reverse2
-3 a * * 2
-3 b a r swap2
-3 _ * * reverse2
-swap2 a b l 2
+startcomparison & * l 1
+startcomparison 0 * l startcomparison
 
-reverse2 _ * r 0
+1 1 0 r 2
+1 0 * l 1
+1 _ * r A<=B
 
-0 * * * gg
-1 * * * gg
-2 * * * gg
-3 * * * gg
+2 & * r 3
+2 0 * r 2
 
-gg * ! * halt-end
+3 1 0 l startcomparison
+3 0 * r 3
+3 _ * l 4
+
+4 0 * l 4
+4 & * l 4
+4 _ * r A>B
+
+A<=B 0 * r A<=B
+A<=B & * r A<=B
+A<=B _ * l A=B
+A<=B 1 * l A<B
+
+A<B 0 1 l A<B
+A<B & * * deleteminleft
+
+deleteminleft & < l deleteminleft
+deleteminleft 0 _ l deleteminleft
+deleteminleft _ ! * halt
+
+deleteminright & > r deleteminright
+deleteminright 0 _ r deleteminright
+deleteminright _ ! * halt
+
+A=B 0 1 l A=B
+A=B & = l A=B
+A=B _ * * halt
+
+A>B 0 1 r A>B
+A>B & * * deleteminright
+
+пример: 1111&11111

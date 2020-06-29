@@ -1,64 +1,76 @@
 package GeneticAlgorithm;
 
-import java.util.Random;
-
-/*  first equation: u * u * w * w * x * y * z + z + x * y * y + w * x * y * z * z + w * w * x * y = 13
- *   second equation: u * u * w * y * z * z + x + w * w * y * y * z + u * y * z = 49
- *   third equation: u * w * x * y + u * u * w * x * y * z + y + x + u * x * y * z * z = -50
- */
-
 public class Main {
 
 
-	public static final int TARGET_VALUE = 13  ;
+	public static final int TARGET_VALUE = 40  ;
 
-	public static final int TARGET_IS_REACHED_FLAG = -1  ; 
+	public static final int GENE_MIN = -200;
 
-	private static final int TARGET_NOT_REACHED_FLAG = -2  ;
+	public static final int GENE_MAX = 200;
 
-	public static final int POPULATION_COUNT = 5;
+	public static final int POPULATION_COUNT = 20;
 
 	public static final int GENES_COUNT = 5;
 
-	public static final int GENE_MIN = -300;
+	public static final float P= 5.0F;
 
-	public static final int GENE_MAX = 300;
+	public static final int MAX_ITERATIONS = 100000;
 
-	public static final float MUTATION_LIKELIHOOD= 5.0F;
+	public static final int TARGET_IS_REACHED_FLAG = -1  ;
 
-	public static final int MAX_ITERATIONS = 30000;
+	private static final int TARGET_NOT_REACHED_FLAG = -2  ;
 
-	
+	public static float Fittest = 0 ;
+
+	public static float LeastFittest = 0 ;
+
 
 	private Chromosome population[]=new Chromosome[Main.POPULATION_COUNT];
-	
+
 
 	private int fillChromosomesWithFitnesses(int target_value){
-		log( "***Started to create FITNESSES for all chromosomes. " );
 		for ( int i=0; i<POPULATION_COUNT;++i ){
-			log("Filling with fitness population number "+i);
 			float currentFitness = population[i].calculateFitness(target_value);
-			 population[i].setFitness(  currentFitness  );  
-			 log("Fitness: "+population[i].getFitness());
+			 population[i].setFitness(  currentFitness  );
 			 
 
 			 if ( currentFitness == TARGET_IS_REACHED_FLAG  )
 				  return i;
-			 
 
 		}
-		
-		log( "***Finished to create FITNESSES for all chromosomes. " );
+
 		return TARGET_NOT_REACHED_FLAG;
+	}
+
+	public float findFittest(int target_value){
+		Fittest = population[0].calculateFitness(target_value);
+		for ( int i=1; i<POPULATION_COUNT;++i ){
+			if (Fittest < population[i].calculateFitness(target_value)){
+				Fittest = population[i].calculateFitness(target_value);
+			}
+		}
+		return Fittest;
+	}
+
+	public float findLeastFittest(int target_value){
+		LeastFittest = population[0].calculateFitness(target_value);
+		for ( int i=1; i<POPULATION_COUNT;++i ){
+			if (LeastFittest > population[i].calculateFitness(target_value)){
+				LeastFittest = population[i].calculateFitness(target_value);
+			}
+		}
+		return LeastFittest;
 	}
 	
 
 	public static int function( int u, int w, int x, int y, int z ){
-		return  u * u * w * w * x * y * z + z + x * y * y + w * x * y * z * z + w * w * x * y ;
+		//уравнение u^2 * w * x^2 * y^2 + u^2 * x^2 * z^2 + w^2 * x * y^2 * z + y * z + w * x * z^2 = 40
+		return  u * u * w * x * x * y * y + u * u * x * x * z * z + w * w * x * y * y * z + y * z + w * x * z * z ;
 	}
 
 
-	private float getAllFitnessesSum(){
+	public float getAllFitnessesSum(){
 		float allFitnessesSum = .0F; 
 		for ( int i=0; i<POPULATION_COUNT;++i ){
 			allFitnessesSum+=population[i].getFitness();
@@ -68,7 +80,6 @@ public class Main {
 
 	private void fillChromosomeWithLikelihoods(){
 		float allFitnessesSum = getAllFitnessesSum();
-		log( "***Started to create LIKELIHOODS for all chromosomes. allFitnessesSum="+allFitnessesSum );
 		float last=.0F;
 		
 		int i;
@@ -76,13 +87,10 @@ public class Main {
 		   
 		   float likelihood = last + (100* population[i].getFitness()/allFitnessesSum );
 		   last=likelihood;
-		   population[i].setLikelihood( likelihood  );	
-		   log( "Created likelihood for chromosome number "+i+". Likelihood  value:  "+likelihood );
+		   population[i].setLikelihood( likelihood  );
 		}
 
 		population[i-1].setLikelihood( 100  );
-		
-		log( "***Finished to create LIKELIHOODS for all chromosomes. " );
 	} 
 
 	private void printAllChromosomes(){
@@ -93,13 +101,7 @@ public class Main {
 		}
 	}
 
-	public static void log(String message){
-		//System.out.println( message );
-	}
-
 	public static int getRandomInt( int min, int max ){
-		Random randomGenerator;
-		randomGenerator = new Random();
 		return  (int)(Math.random() * ((max+1) - (min+1)) + (min+1));
 	}
 
@@ -114,66 +116,48 @@ public class Main {
 	
 
 	private void fillChromosomeWithRandomGenes( Chromosome chromosome ){
-		log("Filling chromosome with random genes....");
 		for (int i=0;i<GENES_COUNT;++i){
 			chromosome.getGenes()[i]=getRandomGene();
-			log("Gene:"+i+"; value:"+chromosome.getGenes()[i]);
 				
 		}
-		log("I'm done filling chromosome with random genes..");
 		
 	}
 	
 
 	private void createInitialPopulation(){
-		log("*** Started creating initial population...");
 		for (int i = 0; i<POPULATION_COUNT;++i){
-			log("Creating chromosome number "+i);
 			population[i]=new Chromosome();
 			fillChromosomeWithRandomGenes(population[i]);
 		}
-		log("*** FINISHED creating initial population...");	
 		
 	}
 	
 
 	private int[][] getPairsForCrossover(){
-		log("*** Started looking for pairs for crossover");
-		
+
 		int[][] pairs = new int[POPULATION_COUNT][2];
 		
 		for (int i = 0; i<POPULATION_COUNT;++i){
-			log("Looking for pair number "+i+"...");
 			float rand=getRandomFloat(0, 100);
 			int firstChromosome = getChromosomeNumberForThisRand(rand);
-			log("First individual... Random number: "+rand+"; corresponding chromosome:"+firstChromosome+
-				"; chromosome's fitness*100: "+population[firstChromosome].getFitness()*100);
 			
 			int secondChromosome;
 			do{
 				rand=getRandomFloat(0, 100);
 				secondChromosome = getChromosomeNumberForThisRand(rand);
 				
-			}while (firstChromosome==secondChromosome) ;  //prevent individual's crossover with itself :)
-
-			
-			log("Second individual... Random number: "+rand+"; corresponding chromosome:"+secondChromosome+
-					"; chromosome's fitness*100: "+population[secondChromosome].getFitness()*100);
+			}while (firstChromosome==secondChromosome) ;
 			
 			pairs[i][0] = firstChromosome;
 			pairs[i][1] = secondChromosome;
 	
 		}
-		
-		log("*** Finished looking for pairs for crossover");
-		
 		return pairs;
 	}
-	
 
-	private void analizePairs(int[][] pairs){
-		log( "*** Started analyzing totals (for testing only)" );
-		
+
+/*	private void analizePairs(int[][] pairs){
+
 		int[] totals = new int[POPULATION_COUNT];
 
 		for (int i = 0; i<POPULATION_COUNT;++i){
@@ -184,19 +168,10 @@ public class Main {
 			for (int j = 0; j<2;++j){
 				totals [	 pairs[i][j]  ] ++;
 			}
-			
 		}
-
-		//printing totals
-		for (int i = 0; i<POPULATION_COUNT;++i){
-			log( "Individual #"+i+"; fitness:"+population[i].getFitness()+"; number of crossovers:"+totals[i] );
-		}		
-		
-		log( "*** Finished analyzing totals (for testing only)" );
-		
 	}
-	
-	
+*/
+
 
 	private int getChromosomeNumberForThisRand(float rand){
 		
@@ -211,31 +186,20 @@ public class Main {
 		
 	}
 	
-	private  Chromosome[] performCrossoverAndMutationForThePopulationAndGetNextGeneration(  int[][] pairs ){
+	private Chromosome[] performCrossoverAndMutation(  int[][] pairs ){
 		
 		Chromosome nextGeneration[]=new Chromosome[Main.POPULATION_COUNT];
-		
-		log("*******************************");
-		log("Starting performing Crossover operation For The Population...");
 
 		for (int i = 0; i<POPULATION_COUNT;++i){
-			log("** Starting crossover #"+i);
 			Chromosome firstParent = population[  pairs[i][0]  ];
 			Chromosome secondParent = population[  pairs[i][1]  ];
-			log("First parent (#"+pairs[i][0]+")\n" + firstParent );
-			log("Second parent (#"+pairs[i][1]+")\n" + secondParent );
 
  			Chromosome result = firstParent.singleCrossover( secondParent );
-			nextGeneration[i]=result;
-			log( "Resulting (child) chromosome BEFORE the mutation:\n"+ nextGeneration[i]);
 
-			nextGeneration[i]=nextGeneration[i].mutateWithGivenLikelihood();					
-
-			log( "Resulting (child) chromosome AFTER the mutation:\n"+ nextGeneration[i]);
-			log("** Finished crossover #"+i);
+ 			nextGeneration[i] = result;
+ 			nextGeneration[i] = nextGeneration[i].mutation();
 		}
 
-		log("Finished performing Crossover operation For The Population...");
 		return nextGeneration;
 	}
 
@@ -249,13 +213,7 @@ public class Main {
 		this.population = population;
 	}
 
-	/*
-	 * main method
-	 * */		
 	public static void main(String[] args){
-		log("main() is started");	
-		log("POPULATION_COUNT="+POPULATION_COUNT);
-		log("GENES_COUNT="+GENES_COUNT);
 		Main main = new Main();
 		main.createInitialPopulation();
 
@@ -272,12 +230,11 @@ public class Main {
 		main.fillChromosomeWithLikelihoods();
 		main.printAllChromosomes();
 		int[][] pairs = main.getPairsForCrossover();
-		main.analizePairs(pairs);
 		
 		
 		Chromosome nextGeneration[]=new Chromosome[Main.POPULATION_COUNT];
 		
-		nextGeneration = main.performCrossoverAndMutationForThePopulationAndGetNextGeneration(  pairs );
+		nextGeneration = main.performCrossoverAndMutation(pairs);
 
 		main.setPopulation(nextGeneration);
 

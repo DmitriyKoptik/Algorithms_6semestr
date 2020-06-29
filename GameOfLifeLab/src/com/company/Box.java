@@ -9,7 +9,7 @@ public class Box extends JPanel {
         super();
         this.cell = new Cell();
         setBounds(x * Config.SIZE, y * Config.SIZE, Config.SIZE, Config.SIZE);
-        setBackground(Config.getColor(Status.NONE));
+        setBackground(Config.getColor(Status.FREE));
     }
 
     public void setColor() {
